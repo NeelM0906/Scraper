@@ -1,6 +1,5 @@
-#  Business Leads AI Automation
+#  Business Leads Automation
 
-**The Ultimate B2B Lead Generation & Intelligence Tool**
 
 This tool automates the discovery of local business leads.
 
