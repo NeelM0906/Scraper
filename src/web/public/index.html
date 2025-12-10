@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Leads AI Dashboard</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/components.css">
+    <style>
+        /* Grid Search Specific Styles */
+        .mode-toggle {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .grid-inputs {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .range-separator {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .hint {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>🚀 Business Leads AI</h1>
+                <span class="version">v2.0 Dashboard</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" id="newCampaignBtn">
+                    ➕ New Campaign
+                </button>
+                <div class="user-info">
+                    <span id="userIndustry">Professional</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Navigation -->
+        <nav class="sidebar">
+            <ul class="nav-menu">
+                <li class="nav-item active" data-section="dashboard">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </li>
+                <li class="nav-item" data-section="campaigns">
+                    <span class="nav-icon">🎯</span>
+                    <span class="nav-text">Campaigns</span>
+                </li>
+                <li class="nav-item" data-section="leads">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-text">Leads</span>
+                </li>
+                <li class="nav-item" data-section="analytics">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">Analytics</span>
+                </li>
+                <li class="nav-item" data-section="merge">
+                    <span class="nav-icon">🔗</span>
+                    <span class="nav-text">Merge Datasets</span>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="section-header">
+                    <h2>Dashboard Overview</h2>
+                    <p>Monitor your lead generation performance</p>
+                </div>
+
+                <!-- Overview Cards -->
+                <div class="overview-cards">
+                    <div class="card stat-card">
+                        <div class="stat-icon">🎯</div>
+                        <div class="stat-content">
+                            <h3 id="totalCampaigns">0</h3>
+                            <p>Total Campaigns</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-content">
+                            <h3 id="totalLeads">0</h3>
+                            <p>Total Leads</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon">⭐</div>
+                        <div class="stat-content">
+                            <h3 id="priorityLeads">0</h3>
+                            <p>Priority Leads</p>
+                        </div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <h3 id="averageScore">0</h3>
+                            <p>Avg Quality Score</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Recent Campaigns</h3>
+                            <button class="btn btn-secondary btn-sm" onclick="showSection('campaigns')">View
+                                All</button>
+                        </div>
+                        <div class="card-content">
+                            <div id="recentActivity" class="activity-list">
+                                <div class="loading">Loading recent activity...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Quick Actions</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="quick-actions">
+                                <button class="action-btn" onclick="openNewCampaignModal()">
+                                    <span class="action-icon">🎯</span>
+                                    <span class="action-text">Create Campaign</span>
+                                </button>
+                                <button class="action-btn" onclick="showSection('analytics')">
+                                    <span class="action-icon">📈</span>
+                                    <span class="action-text">View Analytics</span>
+                                </button>
+                                <button class="action-btn" onclick="exportData()">
+                                    <span class="action-icon">📥</span>
+                                    <span class="action-text">Export Data</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Campaigns Section -->
+            <section id="campaigns-section" class="content-section">
+                <div class="section-header">
+                    <h2>Campaign Management</h2>
+                    <p>Manage and monitor your lead generation campaigns</p>
+                </div>
+
+                <div class="campaigns-container">
+                    <div class="campaigns-filters">
+                        <input type="text" id="campaignSearch" placeholder="Search campaigns..." class="search-input">
+                        <select id="industryFilter" class="filter-select">
+                            <option value="">All Industries</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="automotive">Automotive</option>
+                            <option value="retail">Retail</option>
+                            <option value="professional">Professional</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="education">Education</option>
+                            <option value="realestate">Real Estate</option>
+                        </select>
+                    </div>
+
+                    <div id="campaignsList" class="campaigns-list">
+                        <div class="loading">Loading campaigns...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Leads Section -->
+            <section id="leads-section" class="content-section">
+                <div class="section-header">
+                    <h2>Lead Management</h2>
+                    <p>View and manage your generated leads</p>
+                </div>
+
+                <div class="leads-container">
+                    <div class="leads-filters">
+                        <select id="campaignSelect" class="filter-select">
+                            <option value="">Select Campaign</option>
+                        </select>
+                        <select id="priorityFilter" class="filter-select">
+                            <option value="">All Priorities</option>
+                            <option value="HIGH">High Priority</option>
+                            <option value="MEDIUM">Medium Priority</option>
+                            <option value="LOW">Low Priority</option>
+                        </select>
+                        <input type="number" id="minScoreFilter" placeholder="Min Score" class="score-input" min="0"
+                            max="100">
+                    </div>
+
+                    <div id="leadsTable" class="leads-table-container">
+                        <div class="loading">Select a campaign to view leads</div>
+                    </div>
+
+                    <div id="leadsPagination" class="pagination"></div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analytics-section" class="content-section">
+                <div class="section-header">
+                    <h2>Analytics & Insights</h2>
+                    <p>Analyze your lead generation performance</p>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Industry Performance</h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="industryChart" class="chart-container">
+                                <div class="loading">Loading industry data...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Lead Quality Distribution</h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="qualityChart" class="chart-container">
+                                <div class="loading">Loading quality data...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card full-width">
+                        <div class="card-header">
+                            <h3>Campaign Trends</h3>
+                        </div>
+                        <div class="card-content">
+                            <div id="trendsChart" class="chart-container">
+                                <div class="loading">Loading trends data...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Campaign Detail Section -->
+            <section id="campaign-detail" class="content-section campaign-detail">
+                <!-- Campaign Detail Header -->
+                <div class="campaign-detail-header">
+                    <div class="campaign-detail-info">
+                        <h2 id="campaignDetailName">Campaign Name</h2>
+                        <div class="campaign-detail-meta">
+                            <span id="campaignDetailIndustry">Industry</span>
+                            <span id="campaignDetailLocation">Location</span>
+                            <span id="campaignDetailDate">Date</span>
+                        </div>
+                    </div>
+                    <div class="campaign-detail-actions">
+                        <button class="btn btn-primary btn-sm" onclick="generateAndShowReport()">📄 Generate
+                            Report</button>
+                        <button class="btn btn-secondary btn-sm" onclick="exportCampaignCSV()">📥 Export CSV</button>
+                        <button class="btn btn-secondary btn-sm" onclick="openEditCampaignModal()">✏️ Edit</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteCampaign()">🗑️ Delete</button>
+                        <a href="#" class="back-btn" onclick="backToCampaigns()">Back to Campaigns</a>
+                    </div>
+                </div>
+
+                <!-- Campaign Stats Grid -->
+                <div class="campaign-stats-grid">
+                    <div class="campaign-stat-card">
+                        <div class="campaign-stat-icon">👥</div>
+                        <div class="campaign-stat-value" id="detailTotalLeads">0</div>
+                        <div class="campaign-stat-label">Total Leads</div>
+                    </div>
+                    <div class="campaign-stat-card">
+                        <div class="campaign-stat-icon">⭐</div>
+                        <div class="campaign-stat-value" id="detailPriorityLeads">0</div>
+                        <div class="campaign-stat-label">Priority Leads</div>
+                    </div>
+                    <div class="campaign-stat-card">
+                        <div class="campaign-stat-icon">📊</div>
+                        <div class="campaign-stat-value" id="detailAverageScore">0</div>
+                        <div class="campaign-stat-label">Average Score</div>
+                    </div>
+                    <div class="campaign-stat-card">
+                        <div class="campaign-stat-icon">⭐</div>
+                        <div class="campaign-stat-value" id="detailAverageRating">0</div>
+                        <div class="campaign-stat-label">Average Rating</div>
+                    </div>
+                </div>
+
+                <!-- Campaign Content Grid -->
+                <div class="campaign-content-grid">
+                    <!-- Campaign Leads Section -->
+                    <div class="campaign-leads-section">
+                        <div class="campaign-leads-header">
+                            <h3>Campaign Leads</h3>
+                            <p>Detailed view of all generated leads</p>
+                        </div>
+                        <div class="campaign-leads-content">
+                            <div id="campaignLeadsTable"></div>
+                        </div>
+                    </div>
+
+                    <!-- Campaign Insights -->
+                    <div class="campaign-insights">
+                        <h3>Campaign Insights</h3>
+
+                        <div class="insight-item">
+                            <div class="insight-label">Conversion Rate</div>
+                            <div class="insight-value" id="insightConversionRate">0%</div>
+                            <div class="insight-bar">
+                                <div class="insight-bar-fill" id="conversionRateBar"></div>
+                            </div>
+                        </div>
+
+                        <div class="insight-item">
+                            <div class="insight-label">Quality Score</div>
+                            <div class="insight-value" id="insightQualityScore">0%</div>
+                            <div class="insight-bar">
+                                <div class="insight-bar-fill" id="qualityScoreBar"></div>
+                            </div>
+                        </div>
+
+                        <div class="insight-item">
+                            <div class="insight-label">High Priority Leads</div>
+                            <div class="insight-value" id="insightHighPriority">0</div>
+                        </div>
+
+                        <!-- Priority Distribution -->
+                        <div class="priority-distribution">
+                            <h4>Priority Distribution</h4>
+                            <div class="priority-item">
+                                <div class="priority-item-label">
+                                    <div class="priority-dot high"></div>
+                                    High Priority
+                                </div>
+                                <div class="priority-item-count" id="priorityHigh">0</div>
+                            </div>
+                            <div class="priority-item">
+                                <div class="priority-item-label">
+                                    <div class="priority-dot medium"></div>
+                                    Medium Priority
+                                </div>
+                                <div class="priority-item-count" id="priorityMedium">0</div>
+                            </div>
+                            <div class="priority-item">
+                                <div class="priority-item-label">
+                                    <div class="priority-dot low"></div>
+                                    Low Priority
+                                </div>
+                                <div class="priority-item-count" id="priorityLow">0</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Marketing Content Section -->
+                <div class="marketing-content-section">
+                    <div class="marketing-content-header">
+                        <h3>AI-Generated Marketing Content</h3>
+                        <p>Sample marketing messages for your leads</p>
+                    </div>
+                    <div class="marketing-content-grid">
+                        <div class="marketing-content-item">
+                            <h4 class="whatsapp">WhatsApp Message</h4>
+                            <div class="marketing-message" id="whatsappContent">Loading WhatsApp content...</div>
+                            <div class="marketing-actions">
+                                <button class="action-btn-sm whatsapp"
+                                    onclick="sendWhatsApp(document.getElementById('whatsappContent').textContent)">
+                                    Send WhatsApp
+                                </button>
+                                <button class="action-btn-sm"
+                                    onclick="navigator.clipboard.writeText(document.getElementById('whatsappContent').textContent)">
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                        <div class="marketing-content-item">
+                            <h4 class="email">Email Message</h4>
+                            <div class="marketing-message" id="emailContent">Loading email content...</div>
+                            <div class="marketing-actions">
+                                <button class="action-btn-sm email"
+                                    onclick="sendEmail(document.getElementById('emailContent').textContent)">
+                                    Send Email
+                                </button>
+                                <button class="action-btn-sm"
+                                    onclick="navigator.clipboard.writeText(document.getElementById('emailContent').textContent)">
+                                    Copy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Merge Datasets Section -->
+            <section id="merge-section" class="content-section">
+                <div class="section-header">
+                    <h2>Merge Datasets</h2>
+                    <p>Combine multiple campaigns into a single master dataset</p>
+                </div>
+
+                <div class="card full-width">
+                    <div class="card-body" style="padding: 1.5rem;">
+                        <div class="form-group">
+                            <label>Select Campaigns to Merge</label>
+                            <div id="mergeCampaignList" class="checkbox-list"
+                                style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); padding: 1rem; border-radius: 0.5rem;">
+                                <!-- Checkboxes populated by JS -->
+                                <div class="loading">Loading campaigns...</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>New Dataset Name</label>
+                            <input type="text" id="mergeName" placeholder="e.g. Master List - Lawyers NYC">
+                        </div>
+                        <button class="btn btn-primary" onclick="window.app.mergeCampaigns()">Merge
+                            Selected</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Edit Campaign Modal -->
+    <div id="editCampaignModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Campaign</h3>
+                <button class="modal-close" onclick="closeEditCampaignModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Campaign Name</label>
+                    <input type="text" id="editCampaignName" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditCampaignModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCampaignEdit()">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Modal -->
+    <div id="reportModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3>Lead Intelligence Report</h3>
+                <button class="modal-close" onclick="closeReportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="report-content"
+                    style="background: var(--background-color); color: var(--text-primary); padding: 1.5rem; border-radius: 0.5rem; font-family: monospace; white-space: pre-wrap; max-height: 500px; overflow-y: auto;"
+                    id="reportTextContent"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeReportModal()">Close</button>
+                <button class="btn btn-primary" onclick="copyReportToClipboard()">📋 Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Campaign Modal -->
+    <div id="newCampaignModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Campaign</h3>
+                <button class="modal-close" onclick="closeNewCampaignModal()">&times;</button>
+            </div>
+            <form id="newCampaignForm" class="modal-body">
+                <div class="form-group">
+                    <label for="campaignName">Campaign Name</label>
+                    <input type="text" id="campaignName" name="name" required placeholder="Enter campaign name">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="campaignIndustry">Industry</label>
+                        <select id="campaignIndustry" name="industry" required>
+                            <option value="">Select Industry</option>
+                            <option value="Accountant">Accountant</option>
+                            <option value="Business Owner">Business Owner</option>
+                            <option value="Energy">Energy</option>
+                            <option value="Entrepreneur $1M to $10M">Entrepreneur $1M to $10M</option>
+                            <option value="Executive">Executive</option>
+                            <option value="Finance">Finance</option>
+                            <option value="Lawyer">Lawyer</option>
+                            <option value="Leader of Association">Leader of Association</option>
+                            <option value="Marketing">Marketing</option>
+                            <option value="Medical or Health">Medical or Health</option>
+                            <option value="Real Estate">Real Estate</option>
+                            <option value="Real Estate/Contractor">Real Estate/Contractor</option>
+                            <option value="Technology">Technology</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Enforce Grid Mode -->
+                <input type="hidden" name="searchMode" value="grid">
+
+                <!-- Zip Code Range -->
+                <div id="gridLocationGroup" class="form-group">
+                    <label>Zip Code Range</label>
+                    <div class="grid-inputs">
+                        <input type="text" id="zipStart" name="zipStart" placeholder="Start (e.g. 07001)" maxlength="5"
+                            required>
+                        <span class="range-separator">to</span>
+                        <input type="text" id="zipEnd" name="zipEnd" placeholder="End (e.g. 07010)" maxlength="5"
+                            required>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <label>Batch Size (Parallel Browsers)</label>
+                        <select name="batchSize" id="batchSize" class="filter-select" style="width: 100%;">
+                            <option value="1">1 Browser (Slowest, Safest)</option>
+                            <option value="2" selected>2 Browsers (Recommended)</option>
+                            <option value="3">3 Browsers (Fast)</option>
+                            <option value="4">4 Browsers (Very Fast)</option>
+                            <option value="5">5 Browsers (Maximum)</option>
+                        </select>
+                        <small class="hint">Higher numbers use more RAM but finish faster.</small>
+                    </div>
+                    <small class="hint">Scrapes all zip codes in this range sequentially.</small>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="flex: 2;">
+                        <label for="searchQuery">Search Query</label>
+                        <input type="text" id="searchQuery" name="searchQuery" required
+                            placeholder="Enter search query">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="maxResults">Number of Leads</label>
+                        <input type="number" id="maxResults" name="maxResults" value="100" min="1" max="150" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="yourService">Your Service/Product</label>
+                    <textarea id="yourService" name="yourService" required
+                        placeholder="Describe your service or product briefly..."></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeNewCampaignModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Campaign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Campaign Progress Modal -->
+    <div id="campaignProgressModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Campaign Progress</h3>
+            </div>
+            <div class="modal-body">
+                <div id="campaignProgressContent">
+                    <div class="progress-info">
+                        <h4 id="progressCampaignName">Campaign Name</h4>
+                        <p id="progressStatus">Starting campaign...</p>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar">
+                            <div id="progressBar" class="progress-fill"></div>
+                        </div>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div id="progressMessages" class="progress-messages"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="progressCloseBtn" class="btn btn-secondary" onclick="closeCampaignProgressModal()"
+                    disabled>Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notifications" class="notifications-container"></div>
+
+    <!-- Scripts -->
+    <script>
+        function toggleSearchMode() {
+            const mode = document.querySelector('input[name="searchMode"]:checked').value;
+            const standardGroup = document.getElementById('standardLocationGroup');
+            const gridGroup = document.getElementById('gridLocationGroup');
+            const locationInput = document.getElementById('campaignLocation');
+            const targetZip = document.getElementById('targetZip');
+
+            if (mode === 'grid') {
+                standardGroup.style.display = 'none';
+                gridGroup.style.display = 'block';
+                locationInput.required = false;
+                targetZip.required = true;
+            } else {
+                standardGroup.style.display = 'block';
+                gridGroup.style.display = 'none';
+                locationInput.required = true;
+                targetZip.required = false;
+            }
+        }
+    </script>
+    <script type="module" src="js/app.js"></script>
+</body>
+
+</html>
